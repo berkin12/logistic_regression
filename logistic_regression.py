@@ -52,6 +52,7 @@ def outlier_thresholds(dataframe, col_name, q1=0.05, q3=0.95):
     up_limit = quartile3 + 1.5 * interquantile_range
     low_limit = quartile1 - 1.5 * interquantile_range
     return low_limit, up_limit
+#bu yukarıdaki fonksiyonu biz kurduk eşik değerleri bulmak için
 
 def check_outlier(dataframe, col_name):
     low_limit, up_limit = outlier_thresholds(dataframe, col_name)
@@ -59,12 +60,14 @@ def check_outlier(dataframe, col_name):
         return True
     else:
         return False
+#yukarıdakini de biz kurduk eşik değer kurduktan sonra aykırı değer var mı yok mu diye bakalım
+
 
 def replace_with_thresholds(dataframe, variable):
     low_limit, up_limit = outlier_thresholds(dataframe, variable)
     dataframe.loc[(dataframe[variable] < low_limit), variable] = low_limit
     dataframe.loc[(dataframe[variable] > up_limit), variable] = up_limit
-
+#aykırı değer varsa onları silme hesaplanan eşik değerlerle değiştir dediğimiz fonksiyonumuz
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
@@ -77,6 +80,29 @@ pd.set_option('display.width', 500)
 ######################################################
 
 df = pd.read_csv("datasets/diabetes.csv")
+df.head()
+#veri seti içerisinde bir bağımlı değişken olan outcome değişkeni yani diyabet olma ya da olmama ve 8 bağımsız değişken var
+#diğer değişkenler de diyabeti ortaya çıkardığını varsaydığımız değişkenler
+
+df.shape()
+#out: (768, 9) 768 gözlem birimimiz var
+
+#veri setini anlamaya çalışalım ve ana odağımız olan target'la başlayalım buna
+
+df["Outcome"].value_counts()
+#target kategorik nasıl analiz edebiliriz value counts'larına bakarız hangi sınıftan kaç ad. var diye
+#out: 0 500 
+#     1 268
+
+sns.countplot(x="Outcome", data=df)
+plt.show
+#bu frekansları bir görselleştirelim ilgili değişkeni x olarak veri setini data olarak ifade ederiz kod içerisine
+
+#hedef değişkenimiz tüm veri seti içerisinde nasıl görünüyor diye bir de öyle de bakalım
+#nasıl yaparız bu value counts ifadesini veri setinin boyutuna bölelim ve 100 ile çarpalım
+100* df["Outcome"].value_conts() / len(df)
+#out 0  65.104
+#    1  34.896
 
 ##########################
 # Target'ın Analizi
@@ -89,25 +115,42 @@ plt.show()
 
 100 * df["Outcome"].value_counts() / len(df)
 
+
+
 ##########################
 # Feature'ların Analizi
 ##########################
 
+#feature nedir bağımsız değişkenlerimiz onları analiz edicez şimdi
 df.head()
 
+#describe fonksiyonuyla sadece sayısal değişkenleri getirir ve özetler
+df.describe().T
+
+#görselleştirmek istersek kutu grafik ve histogram gelmeli  hemen aklımıza
+#histogram  ilgili sayısal değişkeni belirli aralıklarla ne kadar frekansta var 
+#ilgili sayısal değişkeni küçükten büyüğe sıraladıktan sonra dağılımıyla ilgili bilgi verir
+
+
+
+#kan basıncı değişkeni için histogram fonksiyonunu yazdık aşağıda
 df["BloodPressure"].hist(bins=20)
 plt.xlabel("BloodPressure")
 plt.show()
 
+
+#bunu tüm değişkenler için tek tek yapmayalım fonksiyon yazalım tüm değişkenlere bizim için yapsın
 def plot_numerical_col(dataframe, numerical_col):
     dataframe[numerical_col].hist(bins=20)
     plt.xlabel(numerical_col)
-    plt.show(block=True)
+    plt.show(block=True) #burada block ture yapma sebebimiz peşpeşe gözükecek grafikler birbirini ezmesin
+    
 
-
+# aşağıda yaptık dediğimiz bağımlı bağımsız tüm sayısal değişkenlere tek tek yapacak 
 for col in df.columns:
     plot_numerical_col(df, col)
 
+#biz yine de sorun yok ama outcome değişkenini çıkaralım dedik
 cols = [col for col in df.columns if "Outcome" not in col]
 
 
@@ -119,9 +162,11 @@ df.describe().T
 ##########################
 # Target vs Features
 ##########################
-
+#target'a göre groupby alalım ve ilgili sayısal bağımsız değişkenin 
+#nasıl bir etki ettiğine bakalım
 df.groupby("Outcome").agg({"Pregnancies": "mean"})
 
+#bunu tümüne uyguladık
 def target_summary_with_num(dataframe, target, numerical_col):
     print(dataframe.groupby(target).agg({numerical_col: "mean"}), end="\n\n\n")
 
