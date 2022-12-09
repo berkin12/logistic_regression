@@ -181,14 +181,31 @@ for col in cols:
 df.shape
 df.head()
 
-df.isnull().sum()
+df.isnull().sum() 
+#yukarıdaki kodla ilgili değişkendeki tüm eksik değerler geliyor olacaktır
+#bakıyoruz eksik değer yok gözüküyor biz yine de bi describe diyerek tüm değerlere genel bakalım
+
 
 df.describe().T
+#çıktıda görüyoruz ki kan basıncının min değeri 0 olur mu kardeşim böyle iş kalp mi atmıyor
+#aslında veride eksik değerler var 
+#neyse şimdilik uğraşmıcaz ama bak yani buna iş problemi kapsamında NA yapmak gerekir mi diye
+
+#üst ve alt aykırı eşik değerleri bi hesapla be kardeşim dedik
+#ve çıktıda insülün eşik değerinde aykırı değer var gibi gözüküyor True döndü çünkü
 
 for col in cols:
     print(col, check_outlier(df, col))
 
-replace_with_thresholds(df, "Insulin")
+replace_with_thresholds(df, "Insulin") 
+#insülendeki aykırı değerleri eşik değerlere atadık
+
+#yapabileceğimiz bir diğer işlem değişkenleri scale etmek yani ölçeklendirmektir
+#gradient descend kullanan yöntemlerde standartlaştırma işlemleri çok önem taşır
+#modellerin değişkenlere eşit yaklaşmasını sağlar
+#çünkü değerleri büyük olan değerleri küçük olandan daha üstün değil bunu anlatmak gerek
+#robust ile scale ediyoruz tüm col'lara 
+#napıyor bu robast tüm değişkenlerden medyanı çıkarıp range değerine bölüyor.
 
 for col in cols:
     df[col] = RobustScaler().fit_transform(df[[col]])
@@ -200,43 +217,24 @@ df.head()
 # Model & Prediction
 ######################################################
 
-y = df["Outcome"]
+y = df["Outcome"] #bağımlı değişkenimiz
 
-X = df.drop(["Outcome"], axis=1)
 
-log_model = LogisticRegression().fit(X, y)
+X = df.drop(["Outcome"], axis=1) #bağımsız değişkenlerimiz
 
-log_model.intercept_
-log_model.coef_
+log_model = LogisticRegression().fit(X, y) #aha kurduk modeli bu kadar
 
+log_model.intercept_ #bias sabitimiz  -1,23
+log_model.coef_ #diğer bağımsız değişkenlerin ağırlıkları
+#değişkenin modelini yazınız diye sorularsa mülakatta
+# y= bias sabitin + ağırlık1 x değişken1 + ağırlık2 x değişken2 .....
+
+#al kardeşim bi tahmin yap bakalım
 y_pred = log_model.predict(X)
 
 y_pred[0:10]
 
 y[0:10]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -256,10 +254,6 @@ y_pred = log_model.predict(X)
 y_pred[0:10]
 
 y[0:10]
-
-
-
-
 
 
 
