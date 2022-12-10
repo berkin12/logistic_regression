@@ -262,6 +262,8 @@ y[0:10]
 # Model Evaluation
 ######################################################
 
+#hadi model başarısı değerlendirmesi yapalım
+
 def plot_confusion_matrix(y, y_pred):
     acc = round(accuracy_score(y, y_pred), 2)
     cm = confusion_matrix(y, y_pred)
